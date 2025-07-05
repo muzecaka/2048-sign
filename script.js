@@ -87,6 +87,7 @@ function move(direction) {
     }
   } else if (direction === "up") {
     for (let j = 0; j < 4; j++) {
+      // Fixed typo: was i++ instead of j++
       let col = [board[0][j], board[1][j], board[2][j], board[3][j]].filter(
         (val) => val !== 0
       );
@@ -161,9 +162,9 @@ function checkGameOver() {
   gameOverPopup.style.display = "block";
 }
 
+// Keyboard controls for PC
 document.addEventListener("keydown", (e) => {
   if (gameOverPopup.style.display === "block") return; // Disable moves during game over
-  // Prevent default scrolling behavior for arrow keys
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
     e.preventDefault();
   }
@@ -183,8 +184,52 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-restartButton.addEventListener("click", initializeBoard);
+// Touch controls for mobile
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
 
+document.addEventListener("touchstart", (e) => {
+  if (gameOverPopup.style.display === "block") return; // Disable moves during game over
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+});
+
+document.addEventListener("touchend", (e) => {
+  if (gameOverPopup.style.display === "block") return; // Disable moves during game over
+  touchEndX = e.changedTouches[0].screenX;
+  touchEndY = e.changedTouches[0].screenY;
+  handleSwipe();
+});
+
+function handleSwipe() {
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+  const minSwipeDistance = 30; // Minimum distance to register a swipe
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // Horizontal swipe
+    if (Math.abs(deltaX) > minSwipeDistance) {
+      if (deltaX > 0) {
+        move("right");
+      } else {
+        move("left");
+      }
+    }
+  } else {
+    // Vertical swipe
+    if (Math.abs(deltaY) > minSwipeDistance) {
+      if (deltaY > 0) {
+        move("down");
+      } else {
+        move("up");
+      }
+    }
+  }
+}
+
+restartButton.addEventListener("click", initializeBoard);
 playAgainButton.addEventListener("click", initializeBoard);
 
 initializeBoard();
